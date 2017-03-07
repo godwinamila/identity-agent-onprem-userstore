@@ -16,14 +16,12 @@
 
 package org.wso2.carbon.identity.agent.onprem.userstore;
 
-import org.wso2.carbon.identity.agent.onprem.userstore.resource.Authenticate;
-import org.wso2.carbon.identity.agent.onprem.userstore.resource.ClaimResource;
-import org.wso2.carbon.identity.agent.onprem.userstore.resource.GroupResource;
-import org.wso2.carbon.identity.agent.onprem.userstore.resource.Status;
-import org.wso2.carbon.identity.agent.onprem.userstore.resource.UserResource;
-import org.wso2.carbon.identity.agent.onprem.userstore.security.JWTSecurityInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.agent.onprem.userstore.security.SecretManagerInitializer;
-import org.wso2.msf4j.MicroservicesRunner;
+
+import java.net.URISyntaxException;
+import javax.net.ssl.SSLException;
 
 
 /**
@@ -33,11 +31,12 @@ import org.wso2.msf4j.MicroservicesRunner;
  */
 
 public class Application {
-    public static void main(String[] args) {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);
+
+    public static void main(String[] args) throws InterruptedException, SSLException, URISyntaxException {
         new SecretManagerInitializer().init();
-        new MicroservicesRunner()
-                .addInterceptor(new JWTSecurityInterceptor())
-                .deploy(new UserResource(), new Authenticate(), new GroupResource(), new Status(), new ClaimResource())
-                .start();
-        }
+        WebSocketClient echoClient = new WebSocketClient("ws://localhost:8080/server/wso2.com");
+        echoClient.handhshake();
+    }
 }

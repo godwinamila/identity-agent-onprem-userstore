@@ -95,6 +95,11 @@
                 <artifactId>msf4j-swagger</artifactId>
                 <version>${org.wso2.msf4j.swagger.version}}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                <version>4.2.7-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
