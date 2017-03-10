@@ -96,6 +96,16 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                 }
+            } else if ("getclaims".equals((String) resultObj.get("requestType"))) {
+                JSONObject requestObj = resultObj.getJSONObject("requestData");
+                UserStoreManager userStoreManager = UserStoreManagerBuilder.getUserStoreManager();
+                boolean isAuthenticated = userStoreManager
+                        .doAuthenticate(requestObj.getString("username"), requestObj.getString("password"));
+                logger.info("Authentication result : " + isAuthenticated);
+                ch.writeAndFlush(new TextWebSocketFrame(
+                        String.format("{correlationId : '%s', responseData: '%s'}",
+                                (String) resultObj.get("correlationId"),
+                                "SUCCESS")));
             }
 
         } else if (frame instanceof BinaryWebSocketFrame) {

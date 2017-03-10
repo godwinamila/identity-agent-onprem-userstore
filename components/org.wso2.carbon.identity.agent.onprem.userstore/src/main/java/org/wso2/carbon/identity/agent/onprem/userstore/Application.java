@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.agent.onprem.userstore.security.SecretManagerInitializer;
 
 import java.net.URISyntaxException;
+import java.util.Scanner;
 import javax.net.ssl.SSLException;
 
 
@@ -36,7 +37,11 @@ public class Application {
 
     public static void main(String[] args) throws InterruptedException, SSLException, URISyntaxException {
         new SecretManagerInitializer().init();
-        WebSocketClient echoClient = new WebSocketClient("ws://localhost:8080/server/wso2.com");
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter Access token: ");
+        String accessToken = scanner.next();
+
+        WebSocketClient echoClient = new WebSocketClient("ws://localhost:8080/server/" + accessToken);
         echoClient.handhshake();
     }
 }
