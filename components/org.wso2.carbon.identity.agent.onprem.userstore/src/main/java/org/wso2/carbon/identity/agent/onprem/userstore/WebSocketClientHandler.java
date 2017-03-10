@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,22 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                         String.format("{correlationId : '%s', responseData: '%s'}",
                                 (String) resultObj.get("correlationId"),
                                 returnObject.toString())));
+            } else if ("getroles".equals((String) resultObj.get("requestType"))) {
+
+                JSONObject requestObj = resultObj.getJSONObject("requestData");
+                String username = requestObj.getString("username");
+
+                UserStoreManager userStoreManager = UserStoreManagerBuilder.getUserStoreManager();
+                String[]  roles = userStoreManager.doGetExternalRoleListOfUser(username);
+                JSONObject jsonObject = new JSONObject();
+                JSONArray usernameArray = new JSONArray(roles);
+                jsonObject.put("groups", usernameArray);
+
+                logger.info("User Claim values: " + jsonObject.toString());
+                ch.writeAndFlush(new TextWebSocketFrame(
+                        String.format("{correlationId : '%s', responseData: '%s'}",
+                                (String) resultObj.get("correlationId"),
+                                jsonObject.toString())));
             }
 
         } else if (frame instanceof BinaryWebSocketFrame) {
