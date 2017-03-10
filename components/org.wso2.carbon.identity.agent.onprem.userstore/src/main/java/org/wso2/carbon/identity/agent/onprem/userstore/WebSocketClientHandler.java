@@ -16,10 +16,12 @@ import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.identity.agent.onprem.userstore.constant.CommonConstants;
 import org.wso2.carbon.identity.agent.onprem.userstore.manager.common.UserStoreManager;
 import org.wso2.carbon.identity.agent.onprem.userstore.manager.common.UserStoreManagerBuilder;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * WebSocket Client Handler for Testing.
@@ -84,6 +86,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
             if ("authenticate".equals((String) resultObj.get("requestType"))) {
                 try {
+                    logger.info("Starting Authentication.");
                     JSONObject requestObj = resultObj.getJSONObject("requestData");
                     UserStoreManager userStoreManager = UserStoreManagerBuilder.getUserStoreManager();
                     boolean isAuthenticated = userStoreManager
@@ -97,15 +100,21 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                     logger.error(e.getMessage());
                 }
             } else if ("getclaims".equals((String) resultObj.get("requestType"))) {
+
                 JSONObject requestObj = resultObj.getJSONObject("requestData");
+                String username = requestObj.getString("username");
+                String attributes = requestObj.getString("attributes");
+                String[] attributeArray = attributes.split(CommonConstants.ATTRIBUTE_LIST_SEPERATOR);
                 UserStoreManager userStoreManager = UserStoreManagerBuilder.getUserStoreManager();
-                boolean isAuthenticated = userStoreManager
-                        .doAuthenticate(requestObj.getString("username"), requestObj.getString("password"));
-                logger.info("Authentication result : " + isAuthenticated);
+
+                Map<String, String> propertyMap = userStoreManager.getUserPropertyValues(username, attributeArray);
+                JSONObject returnObject = new JSONObject(propertyMap);
+
+                logger.info("User Claim values: " + returnObject.toString());
                 ch.writeAndFlush(new TextWebSocketFrame(
                         String.format("{correlationId : '%s', responseData: '%s'}",
                                 (String) resultObj.get("correlationId"),
-                                "SUCCESS")));
+                                returnObject.toString())));
             }
 
         } else if (frame instanceof BinaryWebSocketFrame) {
