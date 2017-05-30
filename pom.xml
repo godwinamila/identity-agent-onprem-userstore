@@ -183,7 +183,7 @@
         <mysql-connector-java-version>5.1.6</mysql-connector-java-version>
         <activemq-core-version>5.7.0</activemq-core-version>
         <activemq-all-version>5.10.0</activemq-all-version>
-        <user.store.common.version>1.0.1-SNAPSHOT</user.store.common.version>
+        <user.store.common.version>2.0.0-SNAPSHOT</user.store.common.version>
     </properties>
 
 </project>
